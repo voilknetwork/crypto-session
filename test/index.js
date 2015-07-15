@@ -30,6 +30,7 @@ describe('koa crypto session', function() {
         .expect('Set-Cookie', /koa:sess/)
         .end(function(err, res) {
           if (err) return done(err)
+
           let cookie = res.headers['set-cookie'].join(';')
           decode(cookie.split(';')[0].split('=')[1]).message.should.equal('hi')
 
@@ -82,6 +83,7 @@ function genApp(options) {
   let app = koa()
   app.keys = ['a', 'b']
   session(app, options)
+
   return app
 }
 
@@ -99,5 +101,6 @@ function decrypt(text) {
 
 function decode(text) {
   let body = new Buffer(decrypt(text), 'base64').toString('utf8')
+
   return JSON.parse(body)
 }

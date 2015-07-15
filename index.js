@@ -53,6 +53,7 @@ module.exports = function(app, opts) {
     // check if the cookie is expired
     if (!json._expire) return null
     if (json._expire < Date.now()) return null
+
     return json
   }
 }
