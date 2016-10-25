@@ -17,9 +17,15 @@ const session = require('koa-crypto-session')
 const app = require('koa')()
 
 session(app, {
-  crypto_key: new Buffer('8734628jhsifud92'), // default
-  algorithm: 'aes-256-cbc'             // default
+  crypto_key: new Buffer('exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=', 'base64'),
+  algorithm: 'aes-256-cbc'
 })
+```
+
+Generate a new crypto_key:
+```bash
+$ node
+> crypto.randomBytes(32).toString('base64')
 ```
 
 ### License

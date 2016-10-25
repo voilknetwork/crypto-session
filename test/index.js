@@ -6,8 +6,8 @@ const session = require('..')
 const koa = require('koa')
 require('should')
 
-const algorithm = 'aes-128-cbc'
-const crypto_key = new Buffer('8734628jhsifud92')
+const algorithm = 'aes-256-cbc'
+const crypto_key = new Buffer('exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=', 'base64')
 
 describe('koa crypto session', function() {
   describe('and not expire', function() {
