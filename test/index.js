@@ -6,11 +6,16 @@ const session = require('..')
 const koa = require('koa')
 require('should')
 
+const algorithm = 'aes-128-cbc'
+const crypto_key = new Buffer('8734628jhsifud92')
+
 describe('koa crypto session', function() {
   describe('and not expire', function() {
     it('should not expire the session', function(done) {
       let app = genApp({
-        maxAge: 100
+        algorithm,
+        crypto_key,
+        maxAge: 100,
       })
 
       app.use(function* () {
@@ -32,7 +37,8 @@ describe('koa crypto session', function() {
           if (err) return done(err)
 
           let cookie = res.headers['set-cookie'].join(';')
-          decode(cookie.split(';')[0].split('=')[1]).message.should.equal('hi')
+          const ciphertext = cookie.split(';', 1)[0].substring(cookie.indexOf('=') + 1)
+          decode(ciphertext).message.should.equal('hi')
 
           request(server)
             .get('/')
@@ -45,7 +51,9 @@ describe('koa crypto session', function() {
   describe('and expired', function() {
     it('should expire the sess', function(done) {
       let app = genApp({
-        maxAge: 100
+        algorithm,
+        crypto_key,
+        maxAge: 100,
       })
 
       app.use(function* () {
@@ -65,8 +73,10 @@ describe('koa crypto session', function() {
         .expect('Set-Cookie', /koa:sess/)
         .end(function(err, res) {
           if (err) return done(err)
-          let cookie = res.headers['set-cookie'].join(';')
-          decode(cookie.split(';')[0].split('=')[1]).message.should.equal('hi')
+          let cookie = res.headers['set-cookie'].join(';') // TODO, why the join?
+          // koa:sess=Y3Zk...bg== 95fP...c3Y=; path=/; expires=Tue, 25 Oct 2016 18:49:21 GMT; ...
+          const ciphertext = cookie.split(';', 1)[0].substring(cookie.indexOf('=') + 1)
+          decode(ciphertext).message.should.equal('hi')
 
           setTimeout(function() {
             request(server)
@@ -87,20 +97,19 @@ function genApp(options) {
   return app
 }
 
-let key = new Buffer('8734628jhsifud92')
-let iv = new Buffer('cvdgfjf1837483jn')
-let algorithm = 'aes-128-cbc'
+function decode(text) {
+  let body = new Buffer(decrypt(text), 'base64').toString('utf8')
+  return JSON.parse(body)
+}
 
 function decrypt(text) {
-  let decipher = crypto.createDecipheriv(algorithm, key, iv)
-  let dec = decipher.update(text, 'base64', 'utf8')
+  const space = text.indexOf(' ')
+  const iv = new Buffer(text.substring(0, space), 'base64')
+  const ciphertext = text.substring(space + 1)
+  
+  let decipher = crypto.createDecipheriv(algorithm, crypto_key, iv)
+  let dec = decipher.update(ciphertext, 'base64', 'utf8')
   dec += decipher.final('utf8')
 
   return dec
-}
-
-function decode(text) {
-  let body = new Buffer(decrypt(text), 'base64').toString('utf8')
-
-  return JSON.parse(body)
 }

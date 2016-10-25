@@ -17,9 +17,8 @@ const session = require('koa-crypto-session')
 const app = require('koa')()
 
 session(app, {
-  key: new Buffer('8734628jhsifud92'), // default
-  iv: new Buffer('cvdgfjf1837483jn'),  // default
-  algorithm: 'aes-128-cbc'             // default
+  crypto_key: new Buffer('8734628jhsifud92'), // default
+  algorithm: 'aes-256-cbc'             // default
 })
 ```
 
