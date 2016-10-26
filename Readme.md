@@ -17,12 +17,12 @@ const session = require('koa-crypto-session')
 const app = require('koa')()
 
 session(app, {
-  crypto_key: new Buffer('exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=', 'base64'),
+  crypto_key: 'exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=',
   algorithm: 'aes-256-cbc'
 })
 ```
 
-Generate a new crypto_key:
+Generate a new crypto_key (note, the length depends on your algorithm):
 ```bash
 $ node
 > crypto.randomBytes(32).toString('base64')
