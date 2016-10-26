@@ -46,16 +46,17 @@ module.exports = function(app, opts) {
 function encrypt(text, key, algorithm) {
     const iv = secureRandom.randomBuffer(16)
     let cipher = crypto.createCipheriv(algorithm, key, iv)
-    let crypted = iv.toString('base64') + ' ' + cipher.update(text, 'utf8', 'base64')
+    let crypted = `crypto-session:${iv.toString('base64')} ${cipher.update(text, 'utf8', 'base64')}`
     crypted += cipher.final('base64')
     return crypted
 }
 
 function decrypt(text, key, algorithm) {
-    const space = text.indexOf(' ')
-    if(space == -1)
+    if(!/^crypto-session:/.test(text))
         throw new Error('Unrecognized encrypted session data format.')
 
+    text = text.substring('crypto-session:'.length)
+    const space = text.indexOf(' ')
     const iv = new Buffer(text.substring(0, space), 'base64')
     const ciphertext = text.substring(space + 1)
     let decipher = crypto.createDecipheriv(algorithm, key, iv)
@@ -64,3 +65,5 @@ function decrypt(text, key, algorithm) {
 
     return dec
 }
+
+module.exports.unitTest_decrypt = decrypt

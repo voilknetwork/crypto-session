@@ -98,18 +98,7 @@ function genApp(options) {
 }
 
 function decode(text) {
-  let body = new Buffer(decrypt(text), 'base64').toString('utf8')
+  const plaintext = session.unitTest_decrypt(text, crypto_key, algorithm)
+  let body = new Buffer(plaintext, 'base64').toString('utf8')
   return JSON.parse(body)
-}
-
-function decrypt(text) {
-  const space = text.indexOf(' ')
-  const iv = new Buffer(text.substring(0, space), 'base64')
-  const ciphertext = text.substring(space + 1)
-  
-  let decipher = crypto.createDecipheriv(algorithm, crypto_key, iv)
-  let dec = decipher.update(ciphertext, 'base64', 'utf8')
-  dec += decipher.final('utf8')
-
-  return dec
 }
