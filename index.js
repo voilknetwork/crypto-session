@@ -83,7 +83,7 @@ function uniqueIv() {
         entropy = loaded + init_time
     }
     const ivStr = `${Date.now().toString(32)}:${unique_key_counter++}:${entropy}`
-    const ivHash = crypto.createHash('sha256').update(ivStr).digest('binary')
+    const ivHash = crypto.createHash('sha1').update(ivStr).digest('binary')
     const iv = new Buffer(ivHash.substring(0, 16), 'binary')
     return iv
 }
