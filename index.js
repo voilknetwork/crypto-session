@@ -1,5 +1,6 @@
 'use strict'
 
+const secureRandom = require('secure-random')
 const session = require('koa-session')
 const crypto = require('crypto')
 
@@ -43,7 +44,7 @@ module.exports = function(app, opts) {
 
 
 function encrypt(text, key, algorithm) {
-    const iv = uniqueIv()
+    const iv = secureRandom.randomBuffer(16)
     let cipher = crypto.createCipheriv(algorithm, key, iv)
     let crypted = iv.toString('base64') + ' ' + cipher.update(text, 'utf8', 'base64')
     crypted += cipher.final('base64')
@@ -62,28 +63,4 @@ function decrypt(text, key, algorithm) {
     dec += decipher.final('utf8')
 
     return dec
-}
-
-let entropy = null
-let unique_key_counter = 1
-const module_load_time = Date.now().toString(32)
-
-/**
-    Create a pretty unique value for use as an initialization vector value.
-
-    @arg {number} length in binary
-    @return {Buffer} pretty unique value
-*/
-function uniqueIv() {
-    if(entropy == null) {
-        // some entropy to help with nodes in a cluster
-        const loaded = module_load_time.substring(module_load_time.length - 5, module_load_time.length)
-        let init_time = Date.now().toString(32)
-        init_time = init_time.substring(init_time.length - 5, init_time.length)
-        entropy = loaded + init_time
-    }
-    const ivStr = `${Date.now().toString(32)}:${unique_key_counter++}:${entropy}`
-    const ivHash = crypto.createHash('sha1').update(ivStr).digest('binary')
-    const iv = new Buffer(ivHash.substring(0, 16), 'binary')
-    return iv
 }
