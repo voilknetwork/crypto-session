@@ -1,5 +1,5 @@
 {
-  "name": "koa-crypto-session",
+  "name": "@steem/koa-crypto-session",
   "version": "1.0.1",
   "description": "use koa-session, but aes encrypted",
   "main": "index.js",
@@ -31,6 +31,6 @@
     "koa",
     "aes"
   ],
-  "author": "haoxin",
+  "author": "",
   "license": "MIT"
 }
