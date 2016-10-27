@@ -1,6 +1,6 @@
 {
   "name": "@steem/koa-crypto-session",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "use koa-session, but aes encrypted",
   "main": "index.js",
   "dependencies": {
