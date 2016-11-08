@@ -31,7 +31,7 @@ module.exports = function(app, opts) {
           let base64 = new Buffer(body).toString('base64')
           return encrypt(base64, key, algorithm)
       } catch(err) {
-          console.error('@steem/koa-crypto-session: encode error resetting session', body, err);
+          console.error('@steem/crypto-session: encode error resetting session', body, err);
           return encrypt(new Buffer('').toString('base64'), key, algorithm);
       }
   }
@@ -47,7 +47,7 @@ module.exports = function(app, opts) {
 
         return json
     } catch(err) {
-        console.error('@steem/koa-crypto-session: decode error resetting session', body, err);
+        console.error('@steem/crypto-session: decode error resetting session', body, err);
         return {};
     }
   }
@@ -78,10 +78,10 @@ function decrypt(text, key, algorithm) {
     } catch(error) {
         try {
             JSON.parse(new Buffer(body, 'base64').toString('utf8')) // Is JSON?
-            console.log('@steem/koa-crypto-session: Encrypting plaintext session.', text)
+            console.log('@steem/crypto-session: Encrypting plaintext session.', text)
             return body
         } catch(error2) {// debug('decode %j error: %s', json, err);
-            throw new Error('@steem/koa-crypto-session: Discarding session.', error, text)
+            throw new Error('@steem/crypto-session: Discarding session.', error, text)
         }
     }
 }
