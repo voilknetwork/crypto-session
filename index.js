@@ -13,6 +13,9 @@ module.exports = function(app, opts) {
   let secret
   try {
       secret = new Buffer(opts.crypto_key, 'base64')
+      if(secret.length !== sodium.crypto_secretbox_KEYBYTES)
+        throw new Error(`Crypto key should decode to ${sodium.crypto_secretbox_KEYBYTES} bytes in length`)
+
   } catch(error) {
       throw new Error('Missing or invalid options.crypto_key', error)
   }
