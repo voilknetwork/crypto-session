@@ -13,8 +13,7 @@ const session = require('crypto-session')
 const app = require('koa')()
 
 session(app, {
-  crypto_key: 'exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=',
-  algorithm: 'aes-256-cbc'
+  crypto_key: 'exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4='
 })
 ```
 

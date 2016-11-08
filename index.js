@@ -1,8 +1,7 @@
 'use strict'
 
-const secureRandom = require('secure-random')
+const sodium = require('libsodium-wrappers')
 const session = require('koa-session')
-const crypto = require('crypto')
 
 module.exports = function(app, opts) {
   opts = opts || {}
@@ -11,14 +10,12 @@ module.exports = function(app, opts) {
     opts.signed = true
   }
 
-  let key
+  let secret
   try {
-      key = new Buffer(opts.crypto_key, 'base64')
+      secret = new Buffer(opts.crypto_key, 'base64')
   } catch(error) {
       throw new Error('Missing or invalid options.crypto_key', error)
   }
-
-  const algorithm = opts.algorithm || 'aes-256-cbc'
 
   opts.encode = encode
   opts.decode = decode
@@ -28,18 +25,25 @@ module.exports = function(app, opts) {
   function encode(body) {
       try {
           body = JSON.stringify(body)
-          let base64 = new Buffer(body).toString('base64')
-          return encrypt(base64, key, algorithm)
+          const plainbuf = new Buffer(body)
+          const cipherbuf = encrypt(plainbuf, secret)
+          // console.log(`crypto-session:${cipherbuf.toString('base64')}`)
+          return `crypto-session:${cipherbuf.toString('base64')}`
       } catch(err) {
           console.error('@steem/crypto-session: encode error resetting session', body, err);
-          return encrypt(new Buffer('').toString('base64'), key, algorithm);
+          return encrypt(new Buffer('').toString('base64'), secret);
       }
   }
   
   function decode(text) {
     try {
-        let body = new Buffer(decrypt(text, key, algorithm), 'base64').toString('utf8')
-        let json = JSON.parse(body)
+        if(!/^crypto-session:/.test(text))
+            throw new Error('Unrecognized encrypted session format.')
+
+        text = text.substring('crypto-session:'.length)
+        const buf = new Buffer(text, 'base64')
+        const body = decrypt(buf, secret).toString('utf8')
+        const json = JSON.parse(body)
 
         // check if the cookie is expired
         if (!json._expire) return null
@@ -47,43 +51,37 @@ module.exports = function(app, opts) {
 
         return json
     } catch(err) {
-        console.error('@steem/crypto-session: decode error resetting session', body, err);
+        console.error(err)
+        try {
+            JSON.parse(new Buffer(text, 'base64').toString('utf8'))
+            const json = text // Already JSON
+            console.log('@steem/crypto-session: Encrypting plaintext session.', json)
+            return json
+        } catch(error2) {// debug('decode %j error: %s', json, err);
+            throw new Error('@steem/crypto-session: Discarding session: ' + text)
+        }
+        console.error('@steem/crypto-session: decode error resetting session', text, err);
         return {};
     }
   }
 }
 
-function encrypt(text, key, algorithm) {
-    const iv = secureRandom.randomBuffer(16)
-    let cipher = crypto.createCipheriv(algorithm, key, iv)
-    let crypted = `crypto-session:${iv.toString('base64')} ${cipher.update(text, 'utf8', 'base64')}`
-    crypted += cipher.final('base64')
-    return crypted
+/** 
+    @arg {Buffer} buf
+    @return {Buffer}
+*/
+function encrypt(buf, secret) {
+    const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES))
+    const ciphertext = sodium.crypto_secretbox_easy(buf, nonce, secret)
+    return Buffer.concat([nonce, Buffer.from(ciphertext)])
 }
 
-function decrypt(text, key, algorithm) {
-    try {
-        if(!/^crypto-session:/.test(text))
-            throw new Error('Unrecognized encrypted session format.')
-
-        text = text.substring('crypto-session:'.length)
-        const space = text.indexOf(' ')
-        const iv = new Buffer(text.substring(0, space), 'base64')
-        const ciphertext = text.substring(space + 1)
-        let decipher = crypto.createDecipheriv(algorithm, key, iv)
-        let dec = decipher.update(ciphertext, 'base64', 'utf8')
-        dec += decipher.final('utf8')
-
-        return dec
-    } catch(error) {
-        try {
-            JSON.parse(new Buffer(body, 'base64').toString('utf8')) // Is JSON?
-            console.log('@steem/crypto-session: Encrypting plaintext session.', text)
-            return body
-        } catch(error2) {// debug('decode %j error: %s', json, err);
-            throw new Error('@steem/crypto-session: Discarding session.', error, text)
-        }
-    }
+/**
+    @arg {Buffer} buf
+    @return Buffer
+*/
+function decrypt(buf, secret) {
+    const nonce = buf.slice(0, sodium.crypto_box_NONCEBYTES);
+    const cipherbuf = buf.slice(sodium.crypto_box_NONCEBYTES);
+    return sodium.crypto_secretbox_open_easy(cipherbuf, nonce, secret, 'text');
 }
-
-module.exports.unitTest_decrypt = decrypt

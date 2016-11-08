@@ -1,19 +1,16 @@
 'use strict'
 
 const request = require('supertest')
-const crypto = require('crypto')
 const session = require('..')
 const koa = require('koa')
 require('should')
 
-const algorithm = 'aes-256-cbc'
 const crypto_key = new Buffer('exiKdyF+IwRIXJDmtGIl4vWUz4i3eVSISpfZoeYc0s4=', 'base64')
 
 describe('koa crypto session', function() {
   describe('and not expire', function() {
     it('should not expire the session', function(done) {
       let app = genApp({
-        algorithm,
         crypto_key,
         maxAge: 100,
       })
@@ -51,7 +48,6 @@ describe('koa crypto session', function() {
   describe('and expired', function() {
     it('should expire the sess', function(done) {
       let app = genApp({
-        algorithm,
         crypto_key,
         maxAge: 100,
       })
@@ -89,16 +85,12 @@ describe('koa crypto session', function() {
   })
 })
 
+let decode
+
 function genApp(options) {
   let app = koa()
   app.keys = ['a', 'b']
   session(app, options)
-
+  decode = options.decode
   return app
-}
-
-function decode(text) {
-  const plaintext = session.unitTest_decrypt(text, crypto_key, algorithm)
-  let body = new Buffer(plaintext, 'base64').toString('utf8')
-  return JSON.parse(body)
 }
