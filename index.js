@@ -41,7 +41,7 @@ module.exports = function(app, opts) {
   function decode(text) {
     try {
         if(!/^crypto-session:/.test(text))
-            throw new Error('Unrecognized encrypted session format.')
+            throw 'Unrecognized encrypted session format.'
 
         text = text.substring('crypto-session:'.length)
         const buf = new Buffer(text, 'base64')
@@ -54,7 +54,7 @@ module.exports = function(app, opts) {
 
         return json
     } catch(err) {
-        console.error(err)
+        console.log(err)
         try {
             JSON.parse(new Buffer(text, 'base64').toString('utf8'))
             const json = text // Already JSON
