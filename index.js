@@ -56,10 +56,11 @@ module.exports = function(app, opts) {
     } catch(err) {
         console.log(err)
         try {
-            JSON.parse(new Buffer(text, 'base64').toString('utf8'))
-            const json = text // Already JSON
-            console.log('@steem/crypto-session: Encrypting plaintext session.', json)
-            return json
+            const jsonString = new Buffer(text, 'base64').toString('utf8')
+            JSON.parse(jsonString)
+            // Already JSON
+            console.log('@steem/crypto-session: Encrypting plaintext session.', jsonString)
+            return text
         } catch(error2) {// debug('decode %j error: %s', json, err);
             throw new Error('@steem/crypto-session: Discarding session: ' + text)
         }
