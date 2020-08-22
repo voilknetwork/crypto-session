@@ -1,5 +1,5 @@
 {
-  "name": "@steem/crypto-session",
+  "name": "crypto-session",
   "version": "1.0.3",
   "description": "use koa-session, but encrypted",
   "main": "index.js",
@@ -20,7 +20,6 @@
     "test-cov": "istanbul cover node_modules/.bin/_mocha -- -R dot -t 5000 test/*.js",
     "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- -R dot -t 5000 test/*.js"
   },
-  "repository": "steemit/crypto-session",
   "files": [
     "index.js"
   ],
@@ -31,6 +30,17 @@
     "koa",
     "aes"
   ],
-  "author": "",
-  "license": "MIT"
+  "author": "Bilal Haider",
+  "license": "MIT",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voilknetwork/crypto-session.git"
+  },
+  "bugs": {
+    "url": "https://github.com/voilknetwork/crypto-session/issues"
+  },
+  "homepage": "https://github.com/voilknetwork/crypto-session#readme"
 }

@@ -33,7 +33,7 @@ module.exports = function(app, opts) {
           // console.log(`crypto-session:${cipherbuf.toString('base64')}`)
           return `crypto-session:${cipherbuf.toString('base64')}`
       } catch(err) {
-          console.error('@steem/crypto-session: encode error resetting session', body, err, (err ? err.stack : undefined));
+          console.error('@voilk/crypto-session: encode error resetting session', body, err, (err ? err.stack : undefined));
           return encrypt(new Buffer('').toString('base64'), secret);
       }
   }
@@ -59,12 +59,12 @@ module.exports = function(app, opts) {
             const jsonString = new Buffer(text, 'base64').toString('utf8')
             JSON.parse(jsonString)
             // Already JSON
-            console.log('@steem/crypto-session: Encrypting plaintext session.', jsonString)
+            console.log('@voilk/crypto-session: Encrypting plaintext session.', jsonString)
             return text
         } catch(error2) {// debug('decode %j error: %s', json, err);
-            throw new Error('@steem/crypto-session: Discarding session: ' + text)
+            throw new Error('@voilk/crypto-session: Discarding session: ' + text)
         }
-        console.error('@steem/crypto-session: decode error resetting session', text, err, (err ? err.stack : undefined));
+        console.error('@voilk/crypto-session: decode error resetting session', text, err, (err ? err.stack : undefined));
         return {};
     }
   }
