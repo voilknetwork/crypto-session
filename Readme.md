@@ -1,5 +1,15 @@
 [![License][license-img]][license-url]
 
+### Install
+
+```
+npm install crypto-session
+
+or
+
+yarn add crypto-session
+```
+
 ### crypto-session
 
 * Use [koa-session](https://github.com/koajs/session), but encrypted.
